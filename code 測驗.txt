@@ -1,0 +1,135 @@
+import sqlite3 as s
+import random as r
+import matplotlib.pyplot as plt
+from tkinter import ttk       
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+from tkinter import messagebox as msgbox
+from PIL import ImageTk,Image
+import pandas as pd
+import numpy as np
+from tkinter.font import Font
+
+def a():
+    global win_a,ag,a1,a2,a3,a4,a5,aa,enter1,enter2
+    win_a=tk.Toplevel()
+    win_a.title('測驗說明')
+    win_a.geometry('600x600')
+    win_a.config(bg='ffc6bf')
+    tk.Label(win_a, text='測驗說明',font='120').place(x=250,y=17)
+    tk.Label(win_a, text='什麼是『心情溫度計』?',font='60').place(x=60,y=80)
+
+    tk.Label(win_a, text='『心情溫度計』適用的年齡層?',font='60').place(x=60,y=280)
+    tk.Button(win_a, text='進入測驗',font='60',command=enter1).place(x=450,y=500)
+    win_a.mainloop()
+    
+def enter1():
+    global win_a,ag,a1,a2,a3,a4,a5,aa,enter1,enter2
+    #win_a.destroy()
+    win_e=tk.Toplevel()
+    win_e.title('心情溫度計')
+    win_e.geometry('600x700')
+    tk.Label(win_e, text='睡眠困難(難入睡、易醒、早醒)',font='120').place(x=60,y=100)
+    values=['完全沒有','輕微','中度','厲害','非常嚴重']
+    a1=ttk.Combobox(win_e, values=values,width=10)
+    a1.place(x=400,y=100)
+    a1.set('請選擇')
+    tk.Label(win_e, text='緊張不安',font='120').place(x=60,y=190) #
+    values=['完全沒有','輕微','中度','厲害','非常嚴重']
+    a2=ttk.Combobox(win_e, values=values,width=10)
+    a2.place(x=400,y=190)
+    a2.set('請選擇')
+    tk.Label(win_e, text='容易動怒',font='120').place(x=60,y=280) #
+    values=['完全沒有','輕微','中度','厲害','非常嚴重']
+    a3=ttk.Combobox(win_e, values=values,width=10)
+    a3.place(x=400,y=280)
+    a3.set('請選擇')
+    tk.Label(win_e, text='憂鬱、心情低落',font='120').place(x=60,y=370) #
+    values=['完全沒有','輕微','中度','厲害','非常嚴重']
+    a4=ttk.Combobox(win_e, values=values,width=10)
+    a4.place(x=400,y=370)
+    a4.set('請選擇')
+    tk.Label(win_e, text='覺得比不上別人',font='120').place(x=60,y=460) #
+    values=['完全沒有','輕微','中度','厲害','非常嚴重']
+    a5=ttk.Combobox(win_e, values=values,width=10)
+    a5.place(x=400,y=460)
+    a5.set('請選擇')
+    tk.Label(win_e, text='(特別題)有自殺想法',font='120').place(x=60,y=550) #
+    values=['完全沒有','輕微','中度','厲害','非常嚴重']
+    aa=ttk.Combobox(win_e, values=values,width=10)
+    aa.place(x=400,y=550)
+    aa.set('請選擇')
+    tk.Button(win_e, text='送出答案',font='60',command=enter2).place(x=450,y=630)
+    win_e.mainloop()
+def enter2():
+    global win_a,ag,a1,a2,a3,a4,a5,aa,enter1,enter2,w_1,dic
+    dic={
+    '完全沒有':0,
+    '輕微':1,
+    '中度':2,
+    '厲害':3,
+    '非常嚴重':4
+    }
+    x=[a1.get(),a2.get(),a3.get(),a4.get(),a5.get()]
+    a=[dic[xx]for xx in x]
+    #xs=sum(a)
+    w_1=tk.Toplevel()
+    w_1.title('測驗結果')
+    w_1.geometry('600x670')
+    tk.Label(w_1, text='總 得 分:',font='60').place(x=60,y=100)
+    tk.Label(w_1, sum(a),font='60').place(x=200,y=100)
+    tk.Label(w_1, text='分',font='60').place(x=290,y=100)
+    #得分說明
+    tk.Label(w_1, text='0-5分:   一般範圍',font='60').place(x=60,y=200)
+    tk.Label(w_1, text='6-9分:   輕度情緒困擾',font='60').place(x=60,y=250)
+    tk.Label(w_1, text='10-14分: 中度情緒困擾',font='60').place(x=60,y=300)
+    tk.Label(w_1, text='15分以上: 重度情緒困擾',font='60').place(x=60,y=350)
+    tk.Label(w_1, text='自殺想法達2分以上建議尋求專業協助',font='60').place(x=60,y=400)
+    tk.Button(win_e, text='重新測驗',font='60',command=replay).place(x=450,y=500)
+    w_1.mainloop()
+
+def replay():
+    w_1.destroy()
+
+#analyze
+def b():
+    global win_a
+    win_a=tk.Toplevel()
+    win_a.geometry('650x500')
+    conn=s.connect('D:\DB\新溫.db')#
+    tree=ttk.Treeview(win_a,show='headings',column=('年齡','職業','睡眠困難','緊張不安','容易動怒','憂鬱、心情低落','覺得比不上別人','有自殺想法'))#顯示層級數據
+    #tree=ttk.Treeview(w_5,show='headings',column=('單字'))#顯示層級數據
+    tree.column('年齡', anchor='center', width=60)#對齊方式，可選n, ne, e, se, s, sw, w, nw, center
+    tree.column('職業', anchor='center', width=60)
+    tree.column('睡眠困難', anchor='center', width=80)
+    tree.column('緊張不安', anchor='center', width=80)
+    tree.column('容易動怒', anchor='center', width=80)
+    tree.column('憂鬱、心情低落', anchor='center', width=80)
+    tree.column('覺得比不上別人', anchor='center', width=80)
+    tree.column('有自殺想法', anchor='center', width=80)
+    tree.heading('年齡', text='年齡')
+    tree.heading('職業', text='職業')
+    tree.heading('睡眠困難', text='睡眠困難')
+    tree.heading('容易動怒', text='容易動怒')
+    tree.heading('憂鬱、心情低落', text='憂鬱、心情低落')
+    tree.heading('覺得比不上別人', text='覺得比不上別人')
+    tree.heading('有自殺想法', text='有自殺想法')
+    tree.place(x=30,y=80) 
+    results=conn.execute('select * from 心溫')
+    i=0
+    for record in results:
+        tree.insert(parent='', index=i, iid=i, text='', values=(record[0],record[1],record[2],record[3],record[4],record[5],record[6],record[7]))
+        i=i+1
+    conn.close()
+    win_a.mainloop()
+
+win=tk.Tk()
+win.title('心理測驗')
+win.geometry('600x670')
+menu = tk.Menu(win)
+win.config(menu=menu)
+maintain_menu = tk.Menu(menu,tearoff = False)
+menu.add_cascade(label="心情溫度計",command=a)
+menu.add_cascade(label='資料分析',command=b)
+win.mainloop()

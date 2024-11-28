@@ -1,0 +1,19 @@
+import pandas as pd
+from IPython.display import display #讓表格變較有quality
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+df=pd.read_csv("C://Users//janet//Downloads//heart.csv",encoding='utf-8')
+df.replace({'完全沒有':1,'輕微':2,'中度':3,'厲害':4,'非常嚴重':5},inplace=True)
+display(df)
+
+df1=df['職業']=='學生'#挑選學生的紀錄
+df2=df[df1]#過濾職業非學生的資料
+df3=df2.iloc[:,3:9]#過濾非題目的欄位
+df3.columns=['容易睡眠困難','容易緊張不安','容易動怒','容易憂鬱低落','比不上別人','自殺想法']#重設欄位名稱
+display(df3.describe().T)#產生統計量數
+plt.rcParams['font.family']='Microsoft JhengHei'
+display(df3.corr())#產生相關係數
+sns.heatmap(df3.corr(),annot=True)#產生熱圖
+plt.show()
+
